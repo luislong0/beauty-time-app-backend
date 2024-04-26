@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  EMPLOYER
+  ADMIN
+}
+
+model User {
+  id            String  @id @default(uuid())
+  name          String
+  email         String  @unique
+  password      String
+  avatarUrl     String? @map("avatar_url")
+  emailVerified Boolean @default(false) @map("email_verified")
+  isBanned      Boolean @default(false) @map("is_banned")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  role     UserRole   @default(USER)
+  Business Business[]
+
+  @@map("users")
+}
+
+model Business {
+  id            String  @id @default(uuid())
+  name          String
+  email         String  @unique
+  cnpj          String  @unique
+  address       String
+  city          String
+  state         String
+  country       String
+  phone         String
+  instagramLink String? @map("instagram_link")
+  isVerified    Boolean @default(false) @map("is_verified")
+  imageUrl      String  @map("image_url")
+  userId        String  @map("user_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("business")
+}
